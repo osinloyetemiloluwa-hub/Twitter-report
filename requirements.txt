@@ -1,4 +1,4 @@
-discord.py>=2.3.0
+py-cord>=2.4.0
 snscrape>=0.6.2
 aiohttp>=3.9.0
 beautifulsoup4>=4.12.0
