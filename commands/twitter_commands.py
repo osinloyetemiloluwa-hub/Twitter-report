@@ -13,6 +13,10 @@ from utils.embed_builder import EmbedBuilder
 from monitors.twitter_monitor import TwitterMonitor
 from datetime import datetime
 
+# ==== REPLACE THIS WITH YOUR ACTUAL DISCORD USER ID (integer) ====
+YOUR_USER_ID = 123456789012345678   # <-- CHANGE THIS
+
+
 class TwitterCommands:
     # Define the command group as a CLASS attribute so decorators can see it
     twitter_group = SlashCommandGroup(
@@ -231,6 +235,25 @@ class TwitterCommands:
         """Show help information about the bot"""
         embed = EmbedBuilder.build_help_embed()
         await ctx.respond(embed=embed, ephemeral=True)
+
+    # ===== NEW: Manual sync command (owner only) =====
+    @twitter_group.command(
+        name="sync",
+        description="[Owner Only] Manually sync slash commands"
+    )
+    async def sync_commands(self, ctx: discord.ApplicationContext):
+        """Private command to sync commands – only the bot owner can run it."""
+        if ctx.author.id != YOUR_USER_ID:
+            await ctx.respond("You don't have permission to use this command.", ephemeral=True)
+            return
+
+        await ctx.defer(ephemeral=True)
+        try:
+            # This will sync all global commands
+            await self.bot.sync_commands()
+            await ctx.followup.send("✅ Slash commands synced successfully!", ephemeral=True)
+        except Exception as e:
+            await ctx.followup.send(f"❌ Failed to sync commands: {e}", ephemeral=True)
 
     @staticmethod
     def _is_valid_username(username: str) -> bool:
