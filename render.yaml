@@ -1,0 +1,17 @@
+# Render Blueprint Specification
+# Deploy this bot to Render Free Tier
+
+services:
+  - type: web
+    name: twitter-alert-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    plan: free
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: POLL_INTERVAL
+        value: 60
+      - key: DEBUG
+        value: false
