@@ -14,39 +14,21 @@ from monitors.twitter_monitor import TwitterMonitor
 from datetime import datetime
 
 class TwitterCommands:
-    """Slash commands for Twitter account management"""
+    # Define the command group as a CLASS attribute so decorators can see it
+    twitter_group = SlashCommandGroup(
+        "twitter",
+        "Twitter account monitoring commands"
+    )
 
     def __init__(self, bot, data_manager: DataManager, twitter_monitor: TwitterMonitor):
         self.bot = bot
         self.data_manager = data_manager
         self.twitter_monitor = twitter_monitor
 
-        # Create the twitter command group
-        self.twitter_group = SlashCommandGroup(
-            "twitter",
-            "Twitter account monitoring commands"
-        )
+        # Optional: store a reference on the instance if needed elsewhere
+        self.twitter_group = self.twitter_group
 
-        # Register subcommands
-        self._register_commands()
-
-    def _register_commands(self):
-        """Register all subcommands"""
-        self.twitter_group.add_command(self.add)
-        self.twitter_group.add_command(self.remove)
-        self.twitter_group.add_command(self.list_accounts)
-        self.twitter_group.add_command(self.set_channel)
-        self.twitter_group.add_command(self.settings)
-        self.twitter_group.add_command(self.help_cmd)
-
-    @discord.slash_command(
-        name="twitter",
-        description="Twitter monitoring commands"
-    )
-    async def twitter(self, ctx):
-        """Base twitter command - shows help"""
-        embed = EmbedBuilder.build_help_embed()
-        await ctx.respond(embed=embed, ephemeral=True)
+        # We DO NOT need to manually add commands – the decorators do it.
 
     @twitter_group.command(
         name="add",
