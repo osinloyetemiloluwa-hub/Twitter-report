@@ -49,20 +49,12 @@ class TwitterAlertBot(discord.Bot):
         self._monitor_task: asyncio.Task = None
         self._running = True
 
-        # Flag to sync commands only once
-        self._commands_synced = False
-
     async def on_ready(self):
         """Called when the bot is ready"""
         logger.info(f"Logged in as {self.user} (ID: {self.user.id})")
         logger.info(f"Connected to {len(self.guilds)} guild(s)")
 
-        # Sync commands only once – prevents hitting 429 on every reconnect
-        if not self._commands_synced:
-            await self.sync_commands()
-            self._commands_synced = True
-            logger.info("Commands synced")
-
+        # !! AUTO-SYNC REMOVED – no sync_commands() call here !!
         # Start the monitoring loop
         self._start_monitoring()
 
@@ -160,17 +152,15 @@ class TwitterAlertBot(discord.Bot):
                         quote_tweet=tweet.quoted_tweet
                     )
 
-                    # Send to all notification channels with a delay between messages
-                    for idx, channel in enumerate(channels):
+                    # Send to all notification channels with a 5‑second delay between each message
+                    for channel in channels:
                         try:
                             if isinstance(channel, discord.TextChannel):
                                 await channel.send(embed=embed)
                                 logger.info(f"Sent tweet notification to #{channel.name} for @{account.username}")
-                                
-                                # ***** RATE LIMIT PROTECTION *****
-                                # Wait 1.5 seconds between messages to avoid 429
-                                # This applies globally across all channels/accounts
-                                await asyncio.sleep(1.5)
+
+                                # ***** RATE LIMIT PROTECTION – 5 SECONDS *****
+                                await asyncio.sleep(5)   # <-- increased from 1.5 to 5
 
                         except Exception as e:
                             logger.error(f"Error sending to #{channel.name}: {e}")
